@@ -1,0 +1,14 @@
+.container-image {
+  width: 100px;
+  height: 100px;
+  margin-right: 8px;
+}
+
+.description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: normal;
+}

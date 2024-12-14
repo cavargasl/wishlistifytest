@@ -32,6 +32,7 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import Products from '@/pages/products';
 
 setupIonicReact();
 
@@ -51,7 +52,7 @@ const App: React.FC = () => (
             <h1>Home</h1>
           </Route>
           <Route exact path={routes.products}>
-            <h1>Products</h1>
+            <Products />
           </Route>
           <Route path={routes.wishlist}>
             <h1>Wishlist</h1>
