@@ -24,7 +24,6 @@ import {
 } from "@ionic/react";
 import { heart, trash } from "ionicons/icons";
 import { useEffect, useState } from "react";
-import "./index.css";
 
 export default function Products() {
   const isLoading = true;
@@ -37,7 +36,7 @@ export default function Products() {
         const products = await productService(axiosProducts()).getProducts({
           pagination: { offset: page, limit: 2 },
         });
-        setData(prev => [...prev, ...products]);
+        setData(products);
       } catch (error) {
         console.log("🚀 ~ error:", error);
       }
@@ -100,15 +99,15 @@ export default function Products() {
         <IonList>
           {data.map((item) => (
             <IonCard key={item.id}>
-              <IonCardContent className="ion-no-padding">
+              <IonCardContent className="px-0 py-2">
                 <IonItem lines="none">
-                  <IonImg src={item.images[0]} className="container-image" />
-                  <IonLabel>
+                  <IonImg src={item.images[0]} className="w-32 h-32 object-cover mr-4" />
+                  <IonLabel className="my-0">
                     {item.title}
                     <IonLabel>
                       {`Precio: $${item.price}`}
                     </IonLabel>
-                    <p className="description">{item.description}</p>
+                    <p className="line-clamp-3">{item.description}</p>
                   </IonLabel>
                   <IonIcon icon={heart} slot="end" />
                 </IonItem>
