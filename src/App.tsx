@@ -1,7 +1,7 @@
 import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, setupIonicReact } from '@ionic/react';
+import { home, pricetags, heart } from 'ionicons/icons';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -35,17 +35,47 @@ import './theme/variables.css';
 
 setupIonicReact();
 
+const routes = {
+  home: '/home',
+  products: '/products',
+  wishlist: '/wishlist',
+};
+
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
-      <IonRouterOutlet>
-        <Route exact path="/home">
-          <Home />
-        </Route>
-        <Route exact path="/">
-          <Redirect to="/home" />
-        </Route>
-      </IonRouterOutlet>
+
+    <IonTabs>
+        <IonRouterOutlet>
+          <Route exact path={routes.home}>
+            <h1>Home</h1>
+          </Route>
+          <Route exact path={routes.products}>
+            <h1>Products</h1>
+          </Route>
+          <Route path={routes.wishlist}>
+            <h1>Wishlist</h1>
+          </Route>
+          <Route exact path="/">
+            <Redirect to="/home" />
+          </Route>
+        </IonRouterOutlet>
+
+        <IonTabBar slot="bottom">
+          <IonTabButton tab="tab1" href={routes.home}>
+            <IonIcon aria-hidden="true" icon={home} />
+            <IonLabel>Inicio</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="tab2" href={routes.products}>
+            <IonIcon aria-hidden="true" icon={pricetags} />
+            <IonLabel>Productos</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="tab3" href={routes.wishlist}>
+            <IonIcon aria-hidden="true" icon={heart} />
+            <IonLabel>Deseados</IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      </IonTabs>
     </IonReactRouter>
   </IonApp>
 );
