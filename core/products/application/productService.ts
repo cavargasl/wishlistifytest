@@ -7,4 +7,7 @@ export const productService = (repository: ProductRepository): ProductRepository
   getProductById: async (id) => {
     return await repository.getProductById(id);
   },
+  getProductsFiltered: async (params) => {
+    return await repository.getProductsFiltered(params);
+  },
 })

@@ -9,7 +9,6 @@ export const axiosProducts = (): ProductRepository => ({
   getProducts: async (params) => {
     const products = await axiosInstance.get<ProductDTO[]>('/products', {
       params: {
-        ...params,
         offset: params?.pagination?.offset || 0,
         limit: params?.pagination?.limit || 5,
       },
@@ -20,6 +19,16 @@ export const axiosProducts = (): ProductRepository => ({
   getProductById: async (productId: number) => {
     const product = await axiosInstance.get<ProductDTO>(`/products/${productId}`);
     return productAdapter(product.data);
-  }
+  },
+
+  getProductsFiltered: async (params) => {
+    delete params?.pagination;
+    const products = await axiosInstance.get<ProductDTO[]>('/products', {
+      params: {
+        ...params,
+      },
+    });
+    return productsAdapter(products.data);
+  },
 })
     
