@@ -1,6 +1,3 @@
-import { productService } from "@core/products/application/productService";
-import { Product } from "@core/products/domain/product";
-import { axiosProducts } from "@core/products/infrastructure/axiosProducts.repository";
 import {
   IonButton,
   IonButtons,
@@ -10,41 +7,30 @@ import {
   IonHeader,
   IonIcon,
   IonImg,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonItem,
   IonLabel,
   IonList,
   IonLoading,
   IonMenuButton,
-  IonPage,
   IonSearchbar,
   IonTitle,
   IonToolbar,
   useIonAlert,
   useIonToast,
 } from "@ionic/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { heart, trash } from "ionicons/icons";
-import { useEffect, useState } from "react";
+import { useProducts } from "./hooks";
 
 export default function Products() {
-  const isLoading = true;
-  const isFetching = false;
-  const [data, setData] = useState<Product[]>([]);
-  const [page, setPage] = useState<number>(0);
-  useEffect(() => {
-    (async () => {
-      try {
-        const products = await productService(axiosProducts()).getProducts({
-          pagination: { offset: page, limit: 2 },
-        });
-        setData(products);
-      } catch (error) {
-        console.log("🚀 ~ error:", error);
-      }
-    })();
-  }, [page]);
+  const { data, fetchNextPage, hasNextPage, isLoading, isFetching, refetch } =
+    useProducts();
+  const queryClient = useQueryClient();
 
-  const nextPage = () => {
-    setPage((e) => e + 5);
+  const clearProducts = () => {
+    queryClient.resetQueries({ queryKey: ["products"], exact: false });
   };
 
   const [showAlert] = useIonAlert();
@@ -52,17 +38,17 @@ export default function Products() {
   const clearList = () => {
     showAlert({
       header: "Confirmar",
-      message: "Estas seguro que deseas borrar todos los productos?",
+      message: "Estas seguro que deseas restablecer los productos?",
       buttons: [
         { text: "Cancelar", role: "cancel" },
         {
-          text: "Borrar",
+          text: "Restablecer",
           handler: () => {
-            setData([]);
+            clearProducts();
             showToast({
-              message: "Todos los productos han sido borrados",
+              message: "La lista de productos ha sido restablecida",
               duration: 2000,
-              color: "danger",
+              color: "success",
             });
           },
         },
@@ -71,7 +57,7 @@ export default function Products() {
   };
 
   return (
-    <IonPage>
+    <>
       <IonHeader>
         <IonToolbar color={"success"}>
           <IonButtons slot="start">
@@ -90,35 +76,56 @@ export default function Products() {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen>
+      <IonContent className="h-[calc(100vh-112px-56px)]">
         {isLoading && (
           <h1>
             <IonLoading />
           </h1>
         )}
-        <IonList>
-          {data.map((item) => (
-            <IonCard key={item.id}>
-              <IonCardContent className="px-0 py-2">
-                <IonItem lines="none">
-                  <IonImg src={item.images[0]} className="w-32 h-32 object-cover mr-4" />
-                  <IonLabel className="my-0">
-                    {item.title}
-                    <IonLabel>
-                      {`Precio: $${item.price}`}
-                    </IonLabel>
-                    <p className="line-clamp-3">{item.description}</p>
-                  </IonLabel>
-                  <IonIcon icon={heart} slot="end" />
-                </IonItem>
-              </IonCardContent>
-            </IonCard>
-          ))}
-        <IonButton onClick={nextPage} disabled={isFetching} expand="full" color={"tertiary"}>
-          {isFetching ? "Cargando..." : "Cargar mas datos"}
-        </IonButton>
-        </IonList>
+        {!data ? (
+          <p className="py-4 text-center">No hay productos</p>
+        ) : (
+          <IonList>
+            {data.pages
+              .flatMap((page) => page)
+              .map((item) => (
+                <IonCard key={item.id}>
+                  <IonCardContent className="px-0 py-2">
+                    <IonItem lines="none">
+                      <IonImg
+                        src={item.images[0]}
+                        className="w-32 h-32 object-cover mr-4"
+                      />
+                      <IonLabel className="my-0">
+                        {item.title}
+                        <IonLabel>{`Precio: $${item.price}`}</IonLabel>
+                        <p className="line-clamp-3">{item.description}</p>
+                      </IonLabel>
+                      <IonIcon icon={heart} slot="end" />
+                    </IonItem>
+                  </IonCardContent>
+                </IonCard>
+              ))}
+            <IonInfiniteScroll
+              onIonInfinite={(ev) => {
+                fetchNextPage();
+                setTimeout(() => ev.target.complete(), 300);
+              }}
+            >
+              <IonInfiniteScrollContent></IonInfiniteScrollContent>
+            </IonInfiniteScroll>
+            {/* <IonButton
+              onClick={() => fetchNextPage()}
+              disabled={isFetching}
+              hidden={!hasNextPage}
+              expand="full"
+              color={"tertiary"}
+            >
+              {isFetching ? "Cargando..." : "Cargar mas datos"}
+            </IonButton> */}
+          </IonList>
+        )}
       </IonContent>
-    </IonPage>
+    </>
   );
 }
