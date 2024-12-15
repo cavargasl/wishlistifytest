@@ -68,7 +68,7 @@ export default function Wishlist() {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
+        <IonToolbar color="danger">
           <IonTitle>Lista de Deseados</IonTitle>
           <IonButtons slot="end">
             <IonButton
@@ -78,6 +78,9 @@ export default function Wishlist() {
               <IonIcon slot="icon-only" icon={heartDislike} color={"light"} />
             </IonButton>
           </IonButtons>
+        </IonToolbar>
+        <IonToolbar color={"danger"}>
+          <IonTitle>Precio total: ${wishlist?.totalPrice}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
