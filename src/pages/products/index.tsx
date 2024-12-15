@@ -9,6 +9,7 @@ import {
   IonList,
   IonLoading,
   IonMenuButton,
+  IonPage,
   IonSearchbar,
   IonTitle,
   IonToolbar,
@@ -69,7 +70,7 @@ export default function Products() {
     : paginatedData?.pages.flatMap((page) => page);
 
   return (
-    <>
+    <IonPage>
       <IonHeader>
         <IonToolbar color={"success"}>
           <IonButtons slot="start">
@@ -136,6 +137,6 @@ export default function Products() {
           </IonList>
         )}
       </IonContent>
-    </>
+    </IonPage>
   );
 }

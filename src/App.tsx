@@ -1,15 +1,24 @@
-import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, setupIonicReact } from '@ionic/react';
-import { home, pricetags, heart } from 'ionicons/icons';
-import { IonReactRouter } from '@ionic/react-router';
+import {
+  IonApp,
+  IonIcon,
+  IonLabel,
+  IonRouterOutlet,
+  IonTabBar,
+  IonTabButton,
+  IonTabs,
+  setupIonicReact,
+} from "@ionic/react";
+import { IonReactRouter } from "@ionic/react-router";
+import { heart, home, pricetags } from "ionicons/icons";
+import { Redirect, Route } from "react-router-dom";
 
 /* Core CSS required for Ionic components to work properly */
-import '@ionic/react/css/core.css';
+import "@ionic/react/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
-import '@ionic/react/css/normalize.css';
-import '@ionic/react/css/structure.css';
-import '@ionic/react/css/typography.css';
+import "@ionic/react/css/normalize.css";
+import "@ionic/react/css/structure.css";
+import "@ionic/react/css/typography.css";
 
 /* Optional CSS utils that can be commented out */
 /* import '@ionic/react/css/padding.css';
@@ -28,38 +37,32 @@ import '@ionic/react/css/display.css'; */
 
 /* import '@ionic/react/css/palettes/dark.always.css'; */
 /* import '@ionic/react/css/palettes/dark.class.css'; */
-import '@ionic/react/css/palettes/dark.system.css';
+import "@ionic/react/css/palettes/dark.system.css";
 
 /* Theme variables */
-import './theme/variables.css';
-import Products from '@/pages/products';
+import "./theme/variables.css";
+
+import Home from "@/pages/home";
+import Products from "@/pages/products";
+import Wishlist from "@/pages/wishlist";
 
 setupIonicReact();
 
 const routes = {
-  home: '/home',
-  products: '/products',
-  wishlist: '/wishlist',
+  home: "/home",
+  products: "/products",
+  wishlist: "/wishlist",
 };
 
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
-
-    <IonTabs>
+      <IonTabs>
         <IonRouterOutlet>
-          <Route exact path={routes.home}>
-            <h1>Home</h1>
-          </Route>
-          <Route exact path={routes.products}>
-            <Products />
-          </Route>
-          <Route path={routes.wishlist}>
-            <h1>Wishlist</h1>
-          </Route>
-          <Route exact path="/">
-            <Redirect to="/home" />
-          </Route>
+          <Route path={routes.home} component={Home} exact />
+          <Route path={routes.products} component={Products} exact />
+          <Route path={routes.wishlist} component={Wishlist} exact />
+          <Redirect exact from="/" to="/home" />
         </IonRouterOutlet>
 
         <IonTabBar slot="bottom">
