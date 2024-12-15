@@ -1,3 +1,6 @@
+import { productWishlistService } from "@core/productsWishlist/application/productWishlistService";
+import { localStorageProductsWishlist } from "@core/productsWishlist/infrastructure/localStorageProductsWishlist.repository";
+import { ANONYMOUS_USER_ID } from "@core/shared/const";
 import {
   IonButton,
   IonButtons,
@@ -7,7 +10,6 @@ import {
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   IonList,
-  IonLoading,
   IonMenuButton,
   IonPage,
   IonSearchbar,
@@ -15,18 +17,24 @@ import {
   IonToolbar,
   useIonAlert,
   useIonToast,
+  useIonViewWillEnter,
 } from "@ionic/react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { trash } from "ionicons/icons";
 import { useState } from "react";
 import { useProducts, useSearchProducts } from "./hooks";
 import ProductCard from "./ProductCard";
+
+const fetchWishlist = productWishlistService(
+  localStorageProductsWishlist()
+).getByUserId;
 
 export default function Products() {
   const {
     data: paginatedData,
     fetchNextPage,
     isLoading,
+    isFetching,
   } = useProducts();
   const queryClient = useQueryClient();
 
@@ -57,6 +65,16 @@ export default function Products() {
       ],
     });
   };
+
+  const { data: wishlist, refetch } = useQuery({
+    queryKey: ["wishlist"],
+    queryFn: () => fetchWishlist(ANONYMOUS_USER_ID),
+    staleTime: Infinity,
+  });
+
+  useIonViewWillEnter(() => {
+    refetch();
+  });
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const { data: searchData, refetch: refetchSearch } =
@@ -96,11 +114,6 @@ export default function Products() {
       </IonHeader>
 
       <IonContent className="h-[calc(100vh-112px-56px)]">
-        {isLoading && (
-          <h1>
-            <IonLoading />
-          </h1>
-        )}
         {!data ? (
           <h1 className="py-4 text-center">Opss... algo salió mal</h1>
         ) : !data.length ? (
@@ -114,7 +127,15 @@ export default function Products() {
         ) : (
           <IonList>
             {data.map((item) => (
-              <ProductCard key={item.id} product={item} />
+              <ProductCard
+                key={item.id}
+                product={item}
+                isFavorite={
+                  wishlist?.products.some(
+                    (product) => product.id === item.id
+                  ) || false
+                }
+              />
             ))}
             <IonInfiniteScroll
               disabled={!!searchTerm}
