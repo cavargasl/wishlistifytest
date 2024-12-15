@@ -1,6 +1,6 @@
 import { productService } from '@core/products/application/productService';
 import { axiosProducts } from '@core/products/infrastructure/axiosProducts.repository';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 const productsFetcher = async ({ pageParam = 0 }: { pageParam : number }) => {
   const products = await productService(axiosProducts()).getProducts({pagination: { offset: pageParam, limit: 10 }});
@@ -18,4 +18,17 @@ export const useProducts = () => {
       },
     }
   )
+};
+
+const searchProductsFetcher = async (searchTerm: string) => {
+  const products = await productService(axiosProducts()).getProductsFiltered({title: searchTerm});
+  return products;
+};
+
+export const useSearchProducts = (searchTerm: string) => {
+  return useQuery({
+    queryKey: ['searchProducts', searchTerm],
+    queryFn: () => searchProductsFetcher(searchTerm),
+    enabled: !!searchTerm,
+  })
 };

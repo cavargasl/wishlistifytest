@@ -22,14 +22,15 @@ import {
 } from "@ionic/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { heart, trash } from "ionicons/icons";
-import { useProducts } from "./hooks";
+import { useState } from "react";
+import { useProducts, useSearchProducts } from "./hooks";
 
 export default function Products() {
-  const { data, fetchNextPage, hasNextPage, isLoading, isFetching, refetch } =
+  const { data: paginatedData, fetchNextPage, hasNextPage, isLoading, isFetching, refetch } =
     useProducts();
   const queryClient = useQueryClient();
 
-  const clearProducts = () => {
+  const resetList = () => {
     queryClient.resetQueries({ queryKey: ["products"], exact: false });
   };
 
@@ -37,16 +38,17 @@ export default function Products() {
   const [showToast] = useIonToast();
   const clearList = () => {
     showAlert({
-      header: "Confirmar",
-      message: "Estas seguro que deseas restablecer los productos?",
+      header: "Restablecer lista",
+      message: "Estas seguro que deseas restablecer la lista de productos?",
       buttons: [
         { text: "Cancelar", role: "cancel" },
         {
           text: "Restablecer",
           handler: () => {
-            clearProducts();
+            resetList();
+            clearSearch();
             showToast({
-              message: "La lista de productos ha sido restablecida",
+              message: "Los productos han sido restablecidos",
               duration: 2000,
               color: "success",
             });
@@ -55,6 +57,14 @@ export default function Products() {
       ],
     });
   };
+
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const { data: searchData, refetch: refetchSearch } = useSearchProducts(searchTerm);
+  const clearSearch = () => {
+    setSearchTerm("");
+    refetchSearch();
+  };
+  const data = searchTerm ? searchData : paginatedData?.pages.flatMap((page) => page);
 
   return (
     <>
@@ -72,7 +82,13 @@ export default function Products() {
         </IonToolbar>
 
         <IonToolbar color={"success"}>
-          <IonSearchbar />
+          <IonSearchbar 
+           value={searchTerm}
+           onIonInput={(e) => setSearchTerm(e.detail.value!)}
+           debounce={500}
+           placeholder="Buscar"
+           onIonClear={clearSearch}
+          />
         </IonToolbar>
       </IonHeader>
 
@@ -82,13 +98,17 @@ export default function Products() {
             <IonLoading />
           </h1>
         )}
-        {!data ? (
-          <p className="py-4 text-center">No hay productos</p>
+        {
+        !data ? <h1 className="py-4 text-center">Opss... algo salió mal</h1> :
+        !data.length ? (
+          searchTerm ? (
+            <p className="py-4 text-center">No hay productos que coincidan con el término de búsqueda</p>
+          ) : (
+            <p className="py-4 text-center">No hay productos</p>
+          )
         ) : (
           <IonList>
-            {data.pages
-              .flatMap((page) => page)
-              .map((item) => (
+            {data.map((item) => (
                 <IonCard key={item.id}>
                   <IonCardContent className="px-0 py-2">
                     <IonItem lines="none">
@@ -107,6 +127,7 @@ export default function Products() {
                 </IonCard>
               ))}
             <IonInfiniteScroll
+              disabled={!!searchTerm}
               onIonInfinite={(ev) => {
                 fetchNextPage();
                 setTimeout(() => ev.target.complete(), 300);
