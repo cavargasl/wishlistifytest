@@ -12,7 +12,6 @@ import {
 } from "@ionic/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { heart } from "ionicons/icons";
-import { useState } from "react";
 
 export default function ProductCard({
   product,
@@ -21,19 +20,17 @@ export default function ProductCard({
   product: Product;
   isFavorite: boolean;
 }) {
-  const [toggleFavorite, setToggleFavorite] = useState(isFavorite);
-
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: productWishlistService(localStorageProductsWishlist()).toggleProduct,
+    mutationFn: productWishlistService(localStorageProductsWishlist())
+      .toggleProduct,
     onSuccess: (data) => {
       queryClient.setQueryData(["wishlist"], data);
     },
-  })
+  });
 
   const handleToggle = async () => {
     mutate({ userId: ANONYMOUS_USER_ID, product });
-    setToggleFavorite((prev) => !prev);
   };
 
   return (
@@ -53,7 +50,7 @@ export default function ProductCard({
             className="cursor-pointer"
             icon={heart}
             slot="end"
-            color={toggleFavorite ? "danger" : "medium"}
+            color={isFavorite ? "danger" : "medium"}
             onClick={handleToggle}
           />
         </IonItem>
