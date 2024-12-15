@@ -2,38 +2,41 @@ import { ANONYMOUS_USER_ID } from "@core/shared/const";
 import { ProductWishlist } from "../domain/productWishlist";
 import { ProductWishlistRepository } from "../domain/productWishlistRepository";
 
-const LOCAL_STORAGE_KEY = "productsWishlist";
+const LOCAL_STORAGE_KEY = "productsWishlist_";
 
 export const localStorageProductsWishlist = (): ProductWishlistRepository => {
-  const readFromLocalStorage = (): ProductWishlist | undefined => {
-    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+  const readFromLocalStorage = (userId: number): ProductWishlist | undefined => {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY+userId);
     return data ? JSON.parse(data) : undefined;
   };
 
-  const writeToLocalStorage = (wishlist: ProductWishlist): void => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(wishlist));
+  const writeToLocalStorage = (wishlist: ProductWishlist, userId: number): void => {
+    localStorage.setItem(LOCAL_STORAGE_KEY+userId, JSON.stringify(wishlist));
+  };
+  const clearWishlist = (userId: number): void => {
+    localStorage.removeItem(LOCAL_STORAGE_KEY+userId);
   };
 
   return {
-    async createList(userId) {
-      const wishlist = readFromLocalStorage();
+    async createList(userId = ANONYMOUS_USER_ID) {
+      const wishlist = readFromLocalStorage(userId);
       if (wishlist) {
         return wishlist;
       }
       const date = new Date();
       const newWishlist: ProductWishlist = {
         id: Date.now() + Math.random(),
-        userId: userId || ANONYMOUS_USER_ID,
+        userId: userId,
         totalPrice: 0,
         products: [],
         createdAt: date.toISOString(),
         updatedAt: date.toISOString(),
       };
-      writeToLocalStorage(newWishlist);
+      writeToLocalStorage(newWishlist, userId);
       return newWishlist;
     },
     async getByUserId(userId) {
-      const wishlist = readFromLocalStorage();
+      const wishlist = readFromLocalStorage(userId);
       if (!wishlist) {
         return undefined;
       }
@@ -46,7 +49,7 @@ export const localStorageProductsWishlist = (): ProductWishlistRepository => {
         newWishlist.products.push(product);
         newWishlist.totalPrice += product.price;
         newWishlist.updatedAt = new Date().toISOString();
-        writeToLocalStorage(newWishlist);
+        writeToLocalStorage(newWishlist, userId);
         return newWishlist;
       }
 
@@ -62,8 +65,15 @@ export const localStorageProductsWishlist = (): ProductWishlistRepository => {
         wishlist.totalPrice += product.price;
       }
       wishlist.updatedAt = new Date().toISOString();
-      writeToLocalStorage(wishlist);
+      writeToLocalStorage(wishlist, userId);
       return wishlist;
+    },
+    async clearList(userId) {
+      const wishlist = await this.getByUserId(userId);
+      if (!wishlist) {
+        return;
+      }
+      clearWishlist(userId);
     },
   };
 };

@@ -12,4 +12,7 @@ export const productWishlistService = (
   toggleProduct(data) {
     return repository.toggleProduct(data);
   },
+  clearList(userId) {
+    return repository.clearList(userId);
+  },
 });
