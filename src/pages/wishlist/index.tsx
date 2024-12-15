@@ -80,7 +80,9 @@ export default function Wishlist() {
           </IonButtons>
         </IonToolbar>
         <IonToolbar color={"danger"}>
-          <IonTitle>Precio total: ${wishlist?.totalPrice}</IonTitle>
+          {wishlist && wishlist.totalPrice > 0 && (
+            <IonTitle>Precio total: ${wishlist?.totalPrice}</IonTitle>
+          )}
         </IonToolbar>
       </IonHeader>
       <IonContent>
