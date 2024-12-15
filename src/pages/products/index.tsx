@@ -19,9 +19,10 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { trash } from "ionicons/icons";
 import { useState } from "react";
-import { useProducts, useSearchProducts } from "./hooks";
 import { useWishlist } from "./hooks/useWishlist";
 import ProductCard from "./ProductCard";
+import { useProducts } from "./hooks/useProducts";
+import { useSearchProducts } from "./hooks/useSearchProducts";
 
 export default function Products() {
   const {
