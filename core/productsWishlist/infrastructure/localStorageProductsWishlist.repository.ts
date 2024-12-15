@@ -20,12 +20,14 @@ export const localStorageProductsWishlist = (): ProductWishlistRepository => {
       if (wishlist) {
         return wishlist;
       }
+      const date = new Date();
       const newWishlist: ProductWishlist = {
         id: Date.now() + Math.random(),
         userId: userId || ANONYMOUS_USER_ID,
         totalPrice: 0,
         products: [],
-        createdAt: new Date().toISOString(),
+        createdAt: date.toISOString(),
+        updatedAt: date.toISOString(),
       };
       writeToLocalStorage(newWishlist);
       return newWishlist;
@@ -43,6 +45,7 @@ export const localStorageProductsWishlist = (): ProductWishlistRepository => {
         const newWishlist = await this.createList(userId);
         newWishlist.products.push(product);
         newWishlist.totalPrice += product.price;
+        newWishlist.updatedAt = new Date().toISOString();
         writeToLocalStorage(newWishlist);
         return newWishlist;
       }
@@ -58,7 +61,7 @@ export const localStorageProductsWishlist = (): ProductWishlistRepository => {
         wishlist.products.push(product);
         wishlist.totalPrice += product.price;
       }
-
+      wishlist.updatedAt = new Date().toISOString();
       writeToLocalStorage(wishlist);
       return wishlist;
     },

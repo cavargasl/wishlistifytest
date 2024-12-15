@@ -6,4 +6,5 @@ export type ProductWishlist = {
   totalPrice: number;
   products: Product[];
   createdAt: string;
+  updatedAt: string;
 }
