@@ -35,13 +35,14 @@ export default function Products() {
     fetchNextPage,
     isLoading,
     isFetching,
+    isFetchingNextPage,
   } = useProducts();
   const queryClient = useQueryClient();
-
+  
   const resetList = () => {
     queryClient.resetQueries({ queryKey: ["products"], exact: false });
   };
-
+  
   const [showAlert] = useIonAlert();
   const [showToast] = useIonToast();
   const clearList = () => {
@@ -65,28 +66,29 @@ export default function Products() {
       ],
     });
   };
-
+  
   const { data: wishlist, refetch } = useQuery({
     queryKey: ["wishlist"],
     queryFn: () => fetchWishlist(ANONYMOUS_USER_ID),
     staleTime: Infinity,
   });
-
+  
   useIonViewWillEnter(() => {
     refetch();
   });
-
+  
   const [searchTerm, setSearchTerm] = useState<string>("");
   const { data: searchData, refetch: refetchSearch } =
-    useSearchProducts(searchTerm);
+  useSearchProducts(searchTerm);
   const clearSearch = () => {
     setSearchTerm("");
     refetchSearch();
   };
   const data = searchTerm
-    ? searchData
-    : paginatedData?.pages.flatMap((page) => page);
-
+  ? searchData
+  : paginatedData?.pages.flatMap((page) => page);
+  
+  console.log("🚀 ~ Products ~ paginatedData:", data,isLoading ,isFetching ,isFetchingNextPage);
   return (
     <IonPage>
       <IonHeader>
@@ -114,19 +116,23 @@ export default function Products() {
       </IonHeader>
 
       <IonContent className="h-[calc(100vh-112px-56px)]">
-        {!data ? (
-          <h1 className="py-4 text-center">Opss... algo salió mal</h1>
-        ) : !data.length ? (
-          searchTerm ? (
+        <IonList>
+          {(isLoading || isFetching || isFetchingNextPage) && !data?.length && (
+            <p className="py-4 text-center">Cargando...</p>
+          )}
+          {!isLoading && !isFetching && !isFetchingNextPage && searchTerm && !data?.length && (
             <p className="py-4 text-center">
               No hay productos que coincidan con el término de búsqueda
             </p>
-          ) : (
-            <p className="py-4 text-center">No hay productos</p>
-          )
-        ) : (
-          <IonList>
-            {data.map((item) => (
+          )}
+          {!isLoading && !isFetching && !isFetchingNextPage && !searchTerm && !data?.length && (
+            <p className="py-4 text-center">
+              Lista de productos vacía
+            </p>
+          )}
+          {data &&
+            data.length > 0 &&
+            data.map((item) => (
               <ProductCard
                 key={item.id}
                 product={item}
@@ -137,26 +143,16 @@ export default function Products() {
                 }
               />
             ))}
-            <IonInfiniteScroll
-              disabled={!!searchTerm}
-              onIonInfinite={(ev) => {
-                fetchNextPage();
-                setTimeout(() => ev.target.complete(), 300);
-              }}
-            >
-              <IonInfiniteScrollContent></IonInfiniteScrollContent>
-            </IonInfiniteScroll>
-            {/* <IonButton
-              onClick={() => fetchNextPage()}
-              disabled={isFetching}
-              hidden={!hasNextPage}
-              expand="full"
-              color={"tertiary"}
-            >
-              {isFetching ? "Cargando..." : "Cargar mas datos"}
-            </IonButton> */}
-          </IonList>
-        )}
+          <IonInfiniteScroll
+            disabled={!!searchTerm}
+            onIonInfinite={(ev) => {
+              fetchNextPage();
+              setTimeout(() => ev.target.complete(), 300);
+            }}
+          >
+            <IonInfiniteScrollContent></IonInfiniteScrollContent>
+          </IonInfiniteScroll>
+        </IonList>
       </IonContent>
     </IonPage>
   );
