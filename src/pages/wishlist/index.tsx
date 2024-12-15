@@ -18,6 +18,7 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { heartDislike } from "ionicons/icons";
 import ProductCard from "../products/ProductCard";
+import { formatPriceToUSD } from "@/utils/format";
 
 const fetchWishlist = productWishlistService(
   localStorageProductsWishlist()
@@ -81,7 +82,7 @@ export default function Wishlist() {
         </IonToolbar>
         <IonToolbar color={"danger"}>
           {wishlist && wishlist.totalPrice > 0 && (
-            <IonTitle>Precio total: ${wishlist?.totalPrice}</IonTitle>
+            <IonTitle>Precio total: {formatPriceToUSD(wishlist.totalPrice)}</IonTitle>
           )}
         </IonToolbar>
       </IonHeader>

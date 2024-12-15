@@ -46,18 +46,18 @@ export default function Home() {
         </IonLabel>
         {
           documentationData.map((item) => (
-            <IonCard>
+            <IonCard key={item.title}>
               <IonCardHeader>
-                <IonCardTitle className="text-primary-contrast">{item.title}</IonCardTitle>
+                <IonCardTitle>{item.title}</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <IonText>
                   {item.content.map((content) => (
-                    <>
-                    <strong className="font-bold text-[#e4e4e4]">{content.subtitle}</strong>
+                    <IonLabel key={content.subtitle}>
+                    <strong>{content.subtitle}</strong>
                     <p>{content.text}</p>
                     <br />
-                    </>
+                    </IonLabel>
                   ))}
                 </IonText>
               </IonCardContent>

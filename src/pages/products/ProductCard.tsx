@@ -42,9 +42,9 @@ export default function ProductCard({
             className="w-32 h-32 object-cover mr-4"
           />
           <IonLabel className="my-0">
-            {product.title}
-            <IonLabel>{`Precio: $${product.price}`}</IonLabel>
-            <p className="line-clamp-3">{product.description}</p>
+            <IonLabel className="!line-clamp-2">{product.title}</IonLabel>
+            <IonLabel className="!line-clamp-1">{`Precio: $${product.price}`}</IonLabel>
+            <p className="!line-clamp-3">{product.description}</p>
           </IonLabel>
           <IonIcon
             className="cursor-pointer"
