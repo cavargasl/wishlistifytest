@@ -1,3 +1,4 @@
+import { Product } from "@core/products/domain/product";
 import { ProductWishlist } from "./productWishlist";
 
 export type ProductWishlistRepository = {
@@ -5,7 +6,7 @@ export type ProductWishlistRepository = {
   getByUserId: (userId: number) => Promise<ProductWishlist | undefined>;
   toggleProduct: (data: {
     userId: number;
-    product: ProductWishlist["products"][0];
+    product: Product;
   }) => Promise<ProductWishlist>;
   clearList: (userId: number) => void;
 };

@@ -1,6 +1,6 @@
 import { Product } from "@core/products/domain/product";
 
-type ProductWithAddedAt = Product & {
+export type ProductWithAddedAt = Product & {
   addedAt: string;
 }
 
