@@ -14,26 +14,25 @@ export const localStorageProductsWishlist = (): ProductWishlistRepository => {
     localStorage.setItem(LOCAL_STORAGE_KEY+userId, JSON.stringify(wishlist));
   };
   const clearWishlist = (userId: number): void => {
-    localStorage.removeItem(LOCAL_STORAGE_KEY+userId);
+    writeToLocalStorage(defaultWishlist(), userId);
   };
 
+  const defaultWishlist = (userId = ANONYMOUS_USER_ID): ProductWishlist => ({
+    id: Date.now() + Math.random(),
+    userId: userId,
+    totalPrice: 0,
+    products: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  })
   return {
     async createList(userId = ANONYMOUS_USER_ID) {
       const wishlist = readFromLocalStorage(userId);
       if (wishlist) {
         return wishlist;
       }
-      const date = new Date();
-      const newWishlist: ProductWishlist = {
-        id: Date.now() + Math.random(),
-        userId: userId,
-        totalPrice: 0,
-        products: [],
-        createdAt: date.toISOString(),
-        updatedAt: date.toISOString(),
-      };
-      writeToLocalStorage(newWishlist, userId);
-      return newWishlist;
+      writeToLocalStorage(defaultWishlist(), userId);
+      return defaultWishlist();
     },
     async getByUserId(userId) {
       const wishlist = readFromLocalStorage(userId);
