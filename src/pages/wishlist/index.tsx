@@ -1,4 +1,7 @@
+import { formatPriceToUSD } from "@/utils/format";
 import { productWishlistService } from "@core/productsWishlist/application/productWishlistService";
+import { SortedProducts } from "@core/productsWishlist/domain/productWishlist";
+import { useSortedWishlist } from "@core/productsWishlist/domain/useSortedWishlist";
 import { localStorageProductsWishlist } from "@core/productsWishlist/infrastructure/localStorageProductsWishlist.repository";
 import { ANONYMOUS_USER_ID } from "@core/shared/const";
 import {
@@ -9,6 +12,8 @@ import {
   IonIcon,
   IonList,
   IonPage,
+  IonSelect,
+  IonSelectOption,
   IonTitle,
   IonToolbar,
   useIonAlert,
@@ -17,12 +22,19 @@ import {
 } from "@ionic/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { heartDislike } from "ionicons/icons";
+import { useState } from "react";
 import ProductCard from "../products/ProductCard";
-import { formatPriceToUSD } from "@/utils/format";
 
 const fetchWishlist = productWishlistService(
   localStorageProductsWishlist()
 ).getByUserId;
+
+const filterFields: (keyof SortedProducts)[] = ["title", "addedAt", "price"];
+const filterLabels: Record<keyof SortedProducts, string> = {
+  title: "Título",
+  addedAt: "Añadido",
+  price: "Precio",
+};
 
 export default function Wishlist() {
   const { data: wishlist, refetch } = useQuery({
@@ -66,6 +78,10 @@ export default function Wishlist() {
     });
   };
 
+  const [sortField, setSortField] = useState<keyof SortedProducts | "">("");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const sortedWishlist = useSortedWishlist({ wishlist, sortField, order });
+
   return (
     <IonPage>
       <IonHeader>
@@ -80,10 +96,40 @@ export default function Wishlist() {
             </IonButton>
           </IonButtons>
         </IonToolbar>
-        <IonToolbar color={"danger"}>
+
+        <IonToolbar
+          color={"danger"}
+          className="flex items-center justify-between"
+        >
           {wishlist && wishlist.totalPrice > 0 && (
-            <IonTitle>Precio total: {formatPriceToUSD(wishlist.totalPrice)}</IonTitle>
+            <IonTitle>
+              Total: {formatPriceToUSD(wishlist.totalPrice)}
+            </IonTitle>
           )}
+          <IonSelect
+            slot="end"
+            className="mr-4"
+            aria-label="Filtro"
+            placeholder="Filtro"
+            onIonChange={(e) => setSortField(e.detail.value!)}
+          >
+            {filterFields.map((field) => {
+              return (
+                <IonSelectOption key={field} value={field}>
+                  {filterLabels[field]}
+                </IonSelectOption>
+              );
+            })}
+          </IonSelect>
+          <IonSelect
+            slot="end"
+            className="ion-padding-end"
+            value={order}
+            onIonChange={(e) => setOrder(e.detail.value)}
+          >
+            <IonSelectOption value="asc">Asc</IonSelectOption>
+            <IonSelectOption value="desc">Desc</IonSelectOption>
+          </IonSelect>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -91,7 +137,7 @@ export default function Wishlist() {
           <p className="py-4 text-center">Tu lista de deseados está vacía</p>
         ) : (
           <IonList>
-            {wishlist.products.map((product) => (
+            {sortedWishlist?.map((product) => (
               <ProductCard key={product.id} product={product} isFavorite />
             ))}
           </IonList>
