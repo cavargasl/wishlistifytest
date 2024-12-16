@@ -97,21 +97,18 @@ export default function Wishlist() {
           </IonButtons>
         </IonToolbar>
 
-        <IonToolbar
-          color={"danger"}
-          className="flex items-center justify-between"
-        >
-          {wishlist && wishlist.totalPrice > 0 && (
-            <IonTitle>
-              Total: {formatPriceToUSD(wishlist.totalPrice)}
-            </IonTitle>
-          )}
+        <IonToolbar color={"danger"}>
+          <IonTitle hidden={!(wishlist && wishlist.totalPrice > 0)}>
+            Total: {formatPriceToUSD(wishlist?.totalPrice ?? 0)}
+          </IonTitle>
+
           <IonSelect
             slot="end"
             className="mr-4"
             aria-label="Filtro"
             placeholder="Filtro"
             onIonChange={(e) => setSortField(e.detail.value!)}
+            hidden={!(wishlist && wishlist.products.length > 0)}
           >
             {filterFields.map((field) => {
               return (
@@ -121,11 +118,13 @@ export default function Wishlist() {
               );
             })}
           </IonSelect>
+
           <IonSelect
             slot="end"
             className="ion-padding-end"
             value={order}
             onIonChange={(e) => setOrder(e.detail.value)}
+            hidden={!(wishlist && wishlist.products.length > 0 && sortField)}
           >
             <IonSelectOption value="asc">Asc</IonSelectOption>
             <IonSelectOption value="desc">Desc</IonSelectOption>

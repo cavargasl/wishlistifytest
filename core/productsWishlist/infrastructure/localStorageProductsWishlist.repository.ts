@@ -44,6 +44,7 @@ export const localStorageProductsWishlist = (): ProductWishlistRepository => {
     },
     async toggleProduct({ userId, product }) {
       const wishlist = await this.getByUserId(userId);
+      product.addedAt = new Date().toISOString();
       if (!wishlist) {
         const newWishlist = await this.createList(userId);
         newWishlist.products.push(product);
