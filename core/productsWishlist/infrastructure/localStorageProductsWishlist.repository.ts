@@ -37,9 +37,7 @@ export const localStorageProductsWishlist = (): ProductWishlistRepository => {
     },
     async getByUserId(userId) {
       const wishlist = readFromLocalStorage(userId);
-      if (!wishlist) {
-        return undefined;
-      }
+      if (!wishlist) return this.createList(userId);
       return wishlist.userId === userId ? wishlist : undefined;
     },
     async toggleProduct({ userId, product }) {
